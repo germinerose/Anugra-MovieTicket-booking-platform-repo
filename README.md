@@ -2,6 +2,8 @@
 
 A complete web application for booking movie tickets, built with **Python Flask** and **SQLite Database**. This project is designed for beginners to learn web development, database management, and Python programming.
 
+**Anugra's Project - Movie Ticket Booking Platform**
+
 ## 📚 What You'll Learn
 
 - **Flask Framework**: Building web applications with Python
@@ -338,4 +340,3 @@ If you encounter any issues:
 **Happy Coding! 🎉**
 
 Remember: The best way to learn is by doing. Don't be afraid to experiment and break things - that's how you learn!
-
