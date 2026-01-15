@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ movie.title }} - MovieHub{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="movie-detail">
+        <div class="movie-detail-header">
+            {% if movie.poster_url %}
+            <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" class="movie-detail-poster">
+            {% else %}
+            <div class="movie-poster-placeholder large">🎬</div>
+            {% endif %}
+            <div class="movie-detail-info">
+                <h1>{{ movie.title }}</h1>
+                <div class="movie-meta">
+                    <span class="badge">{{ movie.genre }}</span>
+                    <span class="badge">{{ movie.rating }}</span>
+                    <span class="badge">{{ movie.duration }} min</span>
+                </div>
+                <p class="movie-description-full">{{ movie.description }}</p>
+            </div>
+        </div>
+
+        <div class="shows-section">
+            <h2>Available Shows</h2>
+            {% if shows %}
+                <div class="shows-list">
+                    {% for show in shows %}
+                    <div class="show-card">
+                        <div class="show-info">
+                            <h3>Screen {{ show.screen_number }}</h3>
+                            <p class="show-time">{{ show.show_time.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                            <p class="show-price">₹{{ "%.2f"|format(show.price) }} per ticket</p>
+                            <p class="show-seats">Available: {{ show.get_available_seats() }} / {{ show.total_seats }}</p>
+                        </div>
+                        <a href="{{ url_for('show_seats', show_id=show.id) }}" class="btn btn-primary">Select Seats</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-shows">No shows available for this movie.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

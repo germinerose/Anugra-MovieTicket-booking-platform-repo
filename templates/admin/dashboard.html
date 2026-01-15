@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - MovieHub{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-dashboard">
+        <h1>Admin Dashboard</h1>
+        
+        <div class="admin-actions">
+            <a href="{{ url_for('add_movie') }}" class="btn btn-primary">Add Movie</a>
+            <a href="{{ url_for('add_show') }}" class="btn btn-primary">Add Show</a>
+        </div>
+        
+        <div class="admin-sections">
+            <div class="admin-section">
+                <h2>Movies ({{ movies|length }})</h2>
+                <div class="admin-list">
+                    {% for movie in movies %}
+                    <div class="admin-item">
+                        <h3>{{ movie.title }}</h3>
+                        <p>{{ movie.genre }} | {{ movie.rating }}</p>
+                        <p>{{ movie.shows|length }} shows</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="admin-section">
+                <h2>Recent Shows</h2>
+                <div class="admin-list">
+                    {% for show in shows %}
+                    <div class="admin-item">
+                        <h3>{{ show.movie.title }}</h3>
+                        <p>{{ show.show_time.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                        <p>Screen {{ show.screen_number }} | ₹{{ "%.2f"|format(show.price) }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="admin-section">
+                <h2>Recent Bookings</h2>
+                <div class="admin-list">
+                    {% for booking in bookings %}
+                    <div class="admin-item">
+                        <h3>{{ booking.user.username }}</h3>
+                        <p>{{ booking.show.movie.title }}</p>
+                        <p>₹{{ "%.2f"|format(booking.total_amount) }} | {{ booking.status }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

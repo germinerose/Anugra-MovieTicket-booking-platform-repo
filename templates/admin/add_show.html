@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Add Show - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-form-container">
+        <h1>Add New Show</h1>
+        <form method="POST" action="{{ url_for('add_show') }}" class="admin-form">
+            <div class="form-group">
+                <label for="movie_id">Movie *</label>
+                <select id="movie_id" name="movie_id" required>
+                    <option value="">Select a movie</option>
+                    {% for movie in movies %}
+                    <option value="{{ movie.id }}">{{ movie.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="show_time">Show Date & Time *</label>
+                    <input type="datetime-local" id="show_time" name="show_time" required>
+                </div>
+                <div class="form-group">
+                    <label for="screen_number">Screen Number *</label>
+                    <input type="number" id="screen_number" name="screen_number" min="1" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="total_seats">Total Seats *</label>
+                    <input type="number" id="total_seats" name="total_seats" min="1" value="50" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price per Ticket (₹) *</label>
+                    <input type="number" id="price" name="price" step="0.01" min="0" required>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Add Show</button>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

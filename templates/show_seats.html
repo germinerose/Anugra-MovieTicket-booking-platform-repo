@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Select Seats - {{ movie.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="seat-selection">
+        <div class="show-info-header">
+            <h1>{{ movie.title }}</h1>
+            <p>Screen {{ show.screen_number }} | {{ show.show_time.strftime('%B %d, %Y at %I:%M %p') }}</p>
+            <p class="price-info">Price: ₹{{ "%.2f"|format(show.price) }} per seat</p>
+        </div>
+
+        <div class="screen-layout">
+            <div class="screen-label">SCREEN</div>
+            
+            <div class="seats-container">
+                {% for row, seats in seats_by_row.items() %}
+                <div class="seat-row">
+                    <span class="row-label">{{ row }}</span>
+                    <div class="seats-in-row">
+                        {% for seat in seats %}
+                        <button 
+                            class="seat {% if seat.id in booked_seat_ids %}booked{% else %}available{% endif %}"
+                            data-seat-id="{{ seat.id }}"
+                            {% if seat.id in booked_seat_ids %}disabled{% endif %}
+                        >
+                            {{ seat.column }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="seat-legend">
+                <div class="legend-item">
+                    <span class="seat available"></span>
+                    <span>Available</span>
+                </div>
+                <div class="legend-item">
+                    <span class="seat selected"></span>
+                    <span>Selected</span>
+                </div>
+                <div class="legend-item">
+                    <span class="seat booked"></span>
+                    <span>Booked</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="booking-summary">
+            <div class="selected-seats">
+                <h3>Selected Seats: <span id="selected-count">0</span></h3>
+                <div id="selected-seats-list"></div>
+            </div>
+            <div class="booking-total">
+                <p>Total: ₹<span id="total-amount">0.00</span></p>
+                <button id="book-btn" class="btn btn-primary btn-large" disabled>Book Tickets</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const showId = {{ show.id }};
+    const seatPrice = {{ show.price }};
+    const selectedSeats = new Set();
+    
+    document.querySelectorAll('.seat.available').forEach(seat => {
+        seat.addEventListener('click', function() {
+            const seatId = parseInt(this.dataset.seatId);
+            
+            if (selectedSeats.has(seatId)) {
+                selectedSeats.delete(seatId);
+                this.classList.remove('selected');
+            } else {
+                selectedSeats.add(seatId);
+                this.classList.add('selected');
+            }
+            
+            updateBookingSummary();
+        });
+    });
+    
+    function updateBookingSummary() {
+        const count = selectedSeats.size;
+        document.getElementById('selected-count').textContent = count;
+        document.getElementById('total-amount').textContent = (count * seatPrice).toFixed(2);
+        
+        const seatsList = document.getElementById('selected-seats-list');
+        seatsList.innerHTML = '';
+        
+        if (count > 0) {
+            selectedSeats.forEach(seatId => {
+                const seat = document.querySelector(`[data-seat-id="${seatId}"]`);
+                const seatText = seat.textContent.trim();
+                const row = seat.closest('.seat-row').querySelector('.row-label').textContent;
+                seatsList.innerHTML += `<span class="seat-badge">${row}${seatText}</span>`;
+            });
+        }
+        
+        document.getElementById('book-btn').disabled = count === 0;
+    }
+    
+    document.getElementById('book-btn').addEventListener('click', async function() {
+        if (selectedSeats.size === 0) return;
+        
+        this.disabled = true;
+        this.textContent = 'Processing...';
+        
+        try {
+            const response = await fetch('/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    show_id: showId,
+                    seat_ids: Array.from(selectedSeats)
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('Booking confirmed! Redirecting to your bookings...');
+                window.location.href = '/bookings';
+            } else {
+                alert('Error: ' + data.message);
+                this.disabled = false;
+                this.textContent = 'Book Tickets';
+            }
+        } catch (error) {
+            alert('An error occurred. Please try again.');
+            this.disabled = false;
+            this.textContent = 'Book Tickets';
+        }
+    });
+</script>
+{% endblock %}
+
